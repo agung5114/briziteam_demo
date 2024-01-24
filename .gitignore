@@ -10,12 +10,12 @@ env
 /staticfiles/
 
 #src
-*.sqlite*
-*.feather
-*.pq
-.env
-.pdf
-*.pdf
-*.pdf*
-*.db
-sqlite.db
+# *.sqlite*
+# *.feather
+# *.pq
+# .env
+# .pdf
+# *.pdf
+# *.pdf*
+# *.db
+# sqlite.db
