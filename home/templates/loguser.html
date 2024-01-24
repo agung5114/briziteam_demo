@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/datatables.mark.js/2.0.0/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" charset="UTF-8"></script> -->
+<!-- <script src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.13.7/features/searchHighlight/dataTables.searchHighlight.css"></script> -->
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js),datatables.mark.js"></script>
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js)"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.js"></script>
+
+
+<style>
+    .ellipsis {
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+    tr > td:hover {
+        overflow: visible;
+        white-space: unset;
+}
+    /* mark{
+    background: orange;
+    color: black;
+} */
+body {
+  margin: 15px;
+}
+
+div.search span {
+  display: block;
+}
+
+div.panel {
+  margin-bottom: 15px;
+}
+
+div.panel .panel-body p:last-child {
+  margin-bottom: 0;
+}
+
+
+/**
+ * Styles for datatables.mark.js
+ */
+
+mark {
+  padding: 0;
+  background: #f1c40f;
+}
+</style>
+
+<div class="container-fluid py-5 mr-4 my-4 mx-4">
+    <div class="row">
+        <div class="col-md-6 col-lg-6 col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Data Aktifitas User</h6>
+                </div>
+                <div class="card-body">
+                    <table id="simpletable" class="table mt-2 table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Tanggal/ Waktu</th>
+                                <th scope="col">Aktifitas</th>
+                                <!-- <th scope="col">Download PDF</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in logdata.itertuples %}
+                            <tr>
+                                <td class="ellipsis">{{ file.username }}</td>
+                                <td class="ellipsis">{{ file.datetime }}</td>
+                                <td class="ellipsis">{{ file.activity }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-6 col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Data Riwayat Pencarian</h6>
+                </div>
+                <div class="card-body">
+                    <table id="simpletable2" class="table mt-2 table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Tanggal</th>
+                                <th scope="col">Aktifitas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in searchdata.itertuples %}
+                            <tr>
+                                <td class="ellipsis">{{ file.username }}</td>
+                                <td class="ellipsis">{{ file.date }}</td>
+                                <td class="ellipsis">{{ file.keyword }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var instance = new Mark(document.querySelector("div.context"));
+    instance.mark("text", {
+        "element": "span",
+        "className": "highlight"
+    });
+</script>
+{% endblock %}

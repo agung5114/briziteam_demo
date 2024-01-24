@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/datatables.mark.js/2.0.0/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" charset="UTF-8"></script> -->
+<!-- <script src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.13.7/features/searchHighlight/dataTables.searchHighlight.css"></script> -->
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js),datatables.mark.js"></script>
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js)"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.js"></script>
+
+
+<style>
+    .ellipsis {
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+    tr > td:hover {
+        overflow: visible;
+        white-space: unset;
+}
+    /* mark{
+    background: orange;
+    color: black;
+} */
+body {
+  margin: 15px;
+}
+
+div.search span {
+  display: block;
+}
+
+div.panel {
+  margin-bottom: 15px;
+}
+
+div.panel .panel-body p:last-child {
+  margin-bottom: 0;
+}
+
+
+/**
+ * Styles for datatables.mark.js
+ */
+
+mark {
+  padding: 0;
+  background: #f1c40f;
+}
+</style>
+
+<div class="container-fluid py-5 mr-4 my-4 mx-4">
+    <div class="row">
+    </div>
+    <div class="row">
+        <div class="col-md-4 col-xl-4 mb-4">
+            <!-- <img class="img-fluid w-20" src="{% static 'assets/img/illustrations/register.svg'%}"> -->
+            <div class="row">
+                <div class="col-md-6 col-lg-6 col-xl-6 mt-6">
+                    <button type="submit" class="btn btn-info container-fluid" ><a href="{% url 'search' %}" class="text-white">Kembali Ke Menu Pencarian</a></button>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-6 mt-6">
+                    <button type="submit" class="btn btn-warning container-fluid" ><a href="{% url 'pdf_extract' %}" class="text-grey">Menu Extract PDF</a></button>
+                </div>
+            </div>
+            <br>
+            <div class="card shadow border-start-primary py-2 mr-2 mb-2">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Putusan Nomor: {{noput}} </h6>
+                </div>
+                <div class="card-body m-0">
+                    <h5>Kelompok Putusan:</h5>
+                    <h4> {{topic}}</h4>
+                    <br>
+                    <h4 id="id_topic">NPWP: {{npwp}}</h4>
+                </div>
+            </div>
+            <br>
+        </div>
+        <div class="col-lg-4 col-xl-4 mb-4 mr-2">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Pasal Terkait</h6>
+                </div>
+                <div class="card-body m-0">
+                {{figpasal | safe}}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xl-4 mb-4 mr-2">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Kata Kunci Terkait</h6>
+                </div>
+                <div class="card-body m-0">
+                    {{figtopik | safe}}
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-xl-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center"> 
+                    <h6 class="text-primary fw-bold m-0">File Putusan</h6>
+                </div>
+                <div class="card-body">
+                    <div id="frm">
+                        <iframe id='pdfframe2' onload="hideLoader()" src="/openpdf/file_putusan/undefined"
+                        frameborder="0" class="container-fluid" style="height:1000px;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+            <!-- {{ similarity | safe}} -->
+        </div>
+        <div class="col-lg-4 col-xl-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center"> 
+                <h6 class="text-primary fw-bold m-0">Putusan lain yang dipilih</h6>
+                <div id="selectedOutput"></div>
+                </div>
+                <div class="card-body">
+                    <div id="loader" class="loadelement">
+                        <span class="spinner"></span>
+                    </div>
+                    <div id="frm">
+                        <iframe id='pdfframe' onload="hideLoader()" src="/openpdf/{{first}}/undefined"
+                        frameborder="0" class="container-fluid" style="height:1000px;">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xl-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Perbandingan dengan putusan lain dengan kemiripan tinggi</h6>
+                </div>
+                <div class="card-body">
+                    <div class="category-filter">
+                        <select id="categoryFilter" class="form-control">
+                           <option value="">Semua Hasil</option>
+                           <option value="Menolak">Menolak</option>
+                           <option value="Tidak_ditemukan">Tidak_ditemukan</option>
+                           <option value="Mengabulkan_Sebagian">Mengabulkan_Sebagian</option>
+                           <option value="Mengabulkan_Seluruhnya">Mengabulkan_Seluruhnya</option>
+                           <option value="Membatalkan">Membatalkan</option>
+                           <option value="Membetulkan_Kesalahan_Tulis/Hitung">Membetulkan_Kesalahan_Tulis/Hitung</option>
+                        </select>
+                     </div>
+                     <table id="fulltable2" class="table mt-2 table-striped container-fluid">
+                        <thead>
+                            <tr>
+                                <th scope="col">Pilih</th>
+                                <th scope="col">Kemiripan</th>
+                                <th scope="col">Nama File</th>
+                                <th scope="col">NPWP</th>
+                                <th scope="col">Kata Kunci</th>
+                                <!-- <th scope="col">Kelompok Putusan</th> -->
+                                <!-- <th scope="col">Kata Kunci</th> -->
+                                <th scope="col">Hasil putusan</th>
+                                <th scope="col">Analisis konten</th>
+                                <th scope="col">Pasal Terkait</th>
+                                <!-- <th scope="col">Download PDF</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in similarity.itertuples %}
+                            <tr>
+                                <td onclick="myTimer()"></td>
+                                <td class="ellipsis">{{ file.similarity }}</td>
+                                <td class="ellipsis">{{ file.file_names }}</td>
+                                <td class="ellipsis">{{ file.npwp }}</td>
+                                <!-- <td class="ellipsis">{{ file.pokok_sengketa }}</td> -->
+                                <td class="ellipsis">{{ file.topik }}</td>
+                                <td class="ellipsis">{{ file.hasil_putusan }}</td>
+                                <td>
+                                <a type="button" class="btn btn-info" href="/search/{{ file.file_names }}">Buka</a>
+                                </td>
+                                <td class="ellipsis">{{ file.pasal }}</td>
+                                <!-- <td>
+                                <a type="button" class="btn btn-info" href="/download/{{ file.file_names }}" target="_blank" rel="noopener">Download</a>
+                                </td> -->
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // let myVar = setInterval(myTimer ,2000);
+    function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+    }
+    async function myTimer() {
+    var table = $('#fulltable2').DataTable();
+    await delay(1000);
+    var tblData = table.rows('.selected').data()[0][2];
+    var x = document.getElementById("id_topic").value;
+    // document.getElementById("demo").innerHTML = x;
+    document.getElementById("selectedOutput").innerHTML = tblData.replace('.txt','');
+    document.getElementById("pdfframe").src = "/openpdf/"+tblData.replace('.txt','')+"/"+x;
+}
+</script>
+<script>
+    var instance = new Mark(document.querySelector("div.context"));
+    instance.mark("text", {
+        "element": "span",
+        "className": "highlight"
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/datatables.mark.js/2.0.0/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" charset="UTF-8"></script> -->
+<!-- <script src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.13.7/features/searchHighlight/dataTables.searchHighlight.css"></script> -->
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js),datatables.mark.js"></script>
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js)"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.js"></script>
+
+
+<style>
+    .ellipsis {
+    max-width: 150px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+    tr > td:hover {
+        overflow: visible;
+        white-space: unset;
+}
+    /* mark{
+    background: orange;
+    color: black;
+} */
+body {
+  margin: 15px;
+}
+
+div.search span {
+  display: block;
+}
+
+div.panel {
+  margin-bottom: 15px;
+}
+
+div.panel .panel-body p:last-child {
+  margin-bottom: 0;
+}
+
+
+/**
+ * Styles for datatables.mark.js
+ */
+
+mark {
+  padding: 0;
+  background: #f1c40f;
+}
+</style>
+
+<div class="container-fluid py-5">
+    <div class="row align-items-center">
+        <div class="col-md-4 col-xl-4 mb-4">
+        </div>
+        <div class="col-md-8 col-xl-8 mb-4">
+            <h3>Ekstraksi File PDF </h3>
+            {{ form.non_field_errors }}
+            <br>
+            <form method="post" enctype="multipart/form-data" action="">{% csrf_token %}
+                {{ form.as_p }}
+                <br>
+                <button type="submit" class="btn btn-primary">Extract</button>
+            </form>
+        </div>
+    </div>
+    {% if cek != 1 %}
+    <div class="row">
+        <div class="col-md-4 col-xl-4 mb-4">
+        </div>
+        <div class="col-md-4 col-xl-4 mb-4">
+            Belum Ada PDF Yang diupload
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-4 col-xl-4 mb-4">
+            <div class="card shadow border-start-primary py-2 mr-2 mb-2">
+                <div class="card-body">
+                <br>
+                <h5>Prediksi Kelompok Sengketa:</h5>
+                <h4> {{topic}}</h4>
+                <br>
+                <!-- <h5> {{topfitur}} disebutkan: {{jumlahtop}} kali</h5>
+                <br> -->
+                <h5>Prediksi Hasil Putusan:</h5>
+                <h4> {{hasil}}</h4>
+                <br>
+                <h5>Overview Hasil Putusan (Jika File Putusan)</h5>
+                <h6>{{ texthasil }}</h6>
+                <!-- <a type="button" class="btn btn-info" href="{% url 'open_pdf'%}">Lihat PDF</a> -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-xl-4 mb-4">
+            <div class="card shadow border-start-primary py-2 mr-2 mb-2">
+                <div class="card-body">
+                <h5>Overview Konten</h5>
+                <h6>{{ text }}</h6>
+                </div>
+            <br>
+            </div>
+        </div>
+        <div class="col-md-4 col-xl-4 mb-4 mr-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Pasal Terkait</h6>
+                </div>
+                <div class="card-body m-0">
+                {{figpasal | safe}}
+                </div>
+            </div>
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Kata Kunci Terkait</h6>
+                </div>
+                <div class="card-body m-0">
+                    {{figtopik | safe}}
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Hasil putusan lain yang memiliki kemiripan tinggi</h6>
+                </div>
+                <div class="card-body">
+                    <div class="category-filter">
+                        <select id="categoryFilter" class="form-control">
+                           <option value="">Semua Hasil</option>
+                           <option value="Menolak">Menolak</option>
+                           <option value="Tidak_ditemukan">Tidak_ditemukan</option>
+                           <option value="Mengabulkan_Sebagian">Mengabulkan_Sebagian</option>
+                           <option value="Mengabulkan_Seluruhnya">Mengabulkan_Seluruhnya</option>
+                           <option value="Membatalkan">Membatalkan</option>
+                           <option value="Membetulkan_Kesalahan_Tulis/Hitung">Membetulkan_Kesalahan_Tulis/Hitung</option>
+                        </select>
+                     </div>
+                    <table id="fulltable" class="datatables-table table-responsive table mt-2 table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nama File</th>
+                                <th scope="col">Kemiripan</th>
+                                <th scope="col">Overview Sengketa</th>
+                                <th scope="col">Pasal Terkait</th>
+                                <th scope="col">Kata Kunci</th>
+                                <th scope="col">Hasil Putusan</th>
+                                <th scope="col">File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in similarity.itertuples %}
+                            <tr>
+                                <td class="ellipsis">{{ file.file_names }}</td>
+                                <td class="ellipsis">{{ file.kemiripan }}</td>
+                                <td class="ellipsis">{{ file.pokok_sengketa }}</td>
+                                <td class="ellipsis">{{ file.pasal }}</td>
+                                <td class="ellipsis">{{ file.topik }}</td>
+                                <td class="ellipsis">{{ file.hasil_putusan }}</td>
+                                <td>
+                                <a type="button" class="btn btn-info" href="/search/{{ file.file_names }}">Lihat Detail</a>
+                                </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/datatables.mark.js/2.0.0/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.min.css"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" charset="UTF-8"></script> -->
+<!-- <script src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.13.7/features/searchHighlight/dataTables.searchHighlight.css"></script> -->
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js),datatables.mark.js"></script>
+<script src="https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js)"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.js"></script>
+
+
+<style>
+    .ellipsis {
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+    tr > td:hover {
+        overflow: visible;
+        white-space: unset;
+}
+    /* mark{
+    background: orange;
+    color: black;
+} */
+body {
+  margin: 10px;
+}
+
+div.search span {
+  display: block;
+}
+
+div.panel {
+  margin-bottom: 15px;
+}
+
+div.panel .panel-body p:last-child {
+  margin-bottom: 0;
+}
+
+
+/**
+ * Styles for datatables.mark.js
+ */
+
+mark {
+  padding: 0;
+  background: #f1c40f;
+}
+
+</style>
+<div class="container-fluid py-5">
+    <div class="row">
+        <div class="col-md-6 col-xl-6 mb-4">
+            <div class="card shadow border-start-primary py-2">
+                <div class="card-body">
+                    <div class="row align-items-center no-gutters">
+                        <div class="col me-2">
+                            <form method="post" novalidate>
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-12 mb-0" id="myForm">
+                                        <h5>Kata Kunci Pencarian</h5>
+                                        <div id="searchtext" class="context">
+                                            {{ form.topic|as_crispy_field }}
+                                        </div>
+                                        <div>
+                                            {{ form.putusan|as_crispy_field }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mt-4">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-6 mb-4">
+            <div class="card shadow border-start-primary py-2 mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center no-gutters">
+                        <div class="col me-2 mb-2">
+                            <div class="text-dark fw-bold text-xs mb-2"><span>Hasil Pencarian</span></div>
+                            <div class="col-auto"><i class="fas fa-calendar fa-2x text-gray-300"></i></div>
+                            <div class="text-dark fw-bold text-xs mb-2"><span><h4>Kata Kunci: {{selected}}</h4></span></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-calendar fa-2x text-gray-600"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center no-gutters">
+                        <div class="col me-2">
+                            <div class="text-uppercase text-primary fw-bold text-xs mb-2"><span>Jumlah Dokumen Ditemukan</span></div>
+                            <div class="text-dark fw-bold h5 mb-2"><span>{{total}}</span></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-calendar fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-lg-6 col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Proporsi Putusan Pengadilan</h6>
+                </div>
+                <div class="card-body">
+                    <div>{{chart2 | safe}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-6 col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Pasal yang terbanyak disebutkan</h6>
+                </div>
+                <div class="card-body">
+                    <div>{{chart1 | safe}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-lg-6 col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Daftar Putusan Terkait Pencarian</h6>
+                    <div>{{listpdf}}</div>
+                </div>
+                <div class="container-fluid mt-4">
+                    <div class="category-filter">
+                        <select id="categoryFilter" class="form-control">
+                           <option value="">Semua Hasil</option>
+                           <option value="Menolak">Menolak</option>
+                           <option value="Tidak_ditemukan">Tidak ditemukan</option>
+                           <option value="Mengabulkan_Sebagian">Mengabulkan Sebagian</option>
+                           <option value="Mengabulkan_Seluruhnya">Mengabulkan Seluruhnya</option>
+                           <option value="Membatalkan">Membatalkan</option>
+                           <option value="Membetulkan_Kesalahan_Tulis/Hitung">Membetulkan Kesalahan Tulis/Hitung</option>
+                        </select>
+                     </div>
+                     <!-- <table id="fulltable" class="table mt-2 display"></table> -->
+                    <table id="fulltable" class="table mt-2 table-striped container-fluid">
+                    <!-- <table id="fulltable" class="datatables-table table-responsive table mt-2 table-striped"> -->
+                        <thead>
+                            <tr>
+                                <!-- <th scope="col">Nomor Putusan</th> -->
+                                <th scope="col">Preview</th>
+                                <th scope="col">Nama file</th>
+                                <th scope="col">Hasil Putusan</th>
+                                <th>Jumlah Ditemukan</th>
+                                <!-- <th scope="col">Pilih File</th> -->
+                                <!-- <th scope="col">Download PDF</th> -->
+                                <!-- <th scope="col">Keyword terkait</th> -->
+                                <th scope="col">Highlight pencarian</th>
+                                <th scope="col">Analisis konten</th>
+                                <th scope="col">NPWP</th>
+                                <th scope="col">Pasal UU PPN Terkait</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in files.itertuples %}
+                            <tr>
+                                <!-- <td class="ellipsis">{{ file.noput }}</td> -->
+                                <td onclick="myTimer()"></td>
+                                <td class="ellipsis">{{ file.file_names }}</td>
+                                <td>{{ file.hasil_putusan }}</td>
+                                <!-- <td class="ellipsis">{{ file.jumlah }}</td> -->
+                                <!-- <td class="ellipsis" style="white-space: normal; color:#333; ">{{ file.kalimat | safe}}</td> -->
+                                <!-- <td>
+                                    <a type="button" class="btn btn-info" onclick="myTimer()" >Preview</a>
+                                </td> -->
+                                <!-- <td>
+                                    <a href="{% url 'select_pdf' id=file.file_names %}">
+                                        <i class="far fa-eye">Pilih</i>
+                                     </a>
+                                </td> -->
+                                <!-- <td>
+                                    <a type="button" class="btn btn-info" href="/download/{{ file.file_names }}" target="_blank" rel="noopener">Download</a>
+                                </td> -->
+                                <!-- <td class="ellipsis">{{ file.topik }}</td> -->
+                                <!-- <td class="ellipsis">{{ file.pasal }}</td> -->
+                                <td>{{ file.jumlah }}</td>
+                                <td class="ellipsis">{{ file.kalimat}}</td>
+                                <td>
+                                    <a type="button" class="btn btn-info" href="/search/{{ file.file_names }}" target="_blank">Buka</a>
+                                </td>
+                                <td class="ellipsis">{{ file.npwp }}</td>
+                                <td class="ellipsis">{{ file.pasal }}</td>
+                                <!-- <td><input type="checkbox" name="selected_options" value="{{ file.file_names }}" href="{% url 'select_pdf' id=file.file_names %}"></td> -->
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-6 col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">File Putusan dipilih</h6>
+                    <!-- <button onclick="myFunction()">Try it</button> -->
+                    <div id="selectedOutput"></div>
+                </div>
+                <div class="card-body">
+                    <div id="loader" class="loadelement">
+                        <span class="spinner"></span>
+                        <!-- <img id="loading-image" src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/images/loading.gif" alt="Loading..." />
+                        style="width:800px; height:1200px;" -->
+                      </div>
+                      <div id="frm">
+                        <iframe id='pdfframe' onload="hideLoader()" src="/openpdf/{{first}}/{{topik}}"
+                        frameborder="0" class="container-fluid" style="height:1000px;">
+                        </iframe>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // let myVar = setInterval(myTimer ,2000);
+    function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+    }
+    async function myTimer() {
+    var table = $('#fulltable').DataTable();
+    await delay(1000);
+    var tblData = table.rows('.selected').data()[0][1];
+    var x = document.getElementById("id_topic").value;
+    // document.getElementById("demo").innerHTML = x;
+    document.getElementById("selectedOutput").innerHTML = tblData.replace('.txt','');
+    document.getElementById("pdfframe").src = "/openpdf/"+tblData.replace('.txt','')+"/"+x;
+}
+</script>
+<!-- <script>
+    var element = document.getElementById('fulltable');
+    element.addEventListener('DOMSubtreeModified', myFunction);
+    function myFunction(e) {
+        // var table = $('#fulltable').DataTable();
+        var tblData = element.rows('.selected').data()[0][0];
+        document.getElementById("selectedOutput").innerHTML = tblData.replace('.txt','');
+        document.getElementById("pdfframe").src = "/openpdf/"+document.getElementById("selectedOutput").innerHTML;
+    }
+</script> -->
+<script>
+    var instance = new Mark(document.querySelector("div.context"));
+    instance.mark("text", {
+        "element": "span",
+        "className": "highlight"
+    });
+</script>
+
+<!-- <script src='https://cdn.jsdelivr.net/g/mark.js(jquery.mark.min.js),datatables.mark.js'></script>   -->
+{% endblock %}

@@ -1,0 +1,33 @@
+django==4.2.4
+gunicorn
+python-dotenv
+whitenoise
+#django-admin-adminlte==1.0.5
+django-crispy-forms==1.14.0
+# plotly-express
+# pandas==1.5.3
+crispy-bootstrap4
+#networkx==3.1
+wordcloud
+#sastrawi
+#pyvis==0.3.2
+
+#tambahan
+#PyPDF2==1.26.0
+PyPDF2==3.0.0
+pytz
+scikit-learn
+pyarrow
+openpyxl
+django-admin-logs
+
+django-plotly-dash
+dpd-static-support
+dash-bootstrap-components
+nltk
+requests
+#vaex
+django-cache-memoize
+#pdfhighlight
+PyMuPDF
+django-redis

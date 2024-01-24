@@ -1,0 +1,12 @@
+/*CREATE TABLE db.WORDS (
+    file_names    TEXT,
+    npwp          REAL,
+    words         TEXT,
+    counts        TEXT,
+    hasil_putusan TEXT
+);*/
+
+CREATE TABLE SENGKETA (
+    file_names     TEXT,
+    pokok_sengketa TEXT
+);

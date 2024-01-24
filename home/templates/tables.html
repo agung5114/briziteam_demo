@@ -1,0 +1,194 @@
+<script>
+  $(function () {
+    $("#simpletable").DataTable({
+      "responsive": true, 
+      "lengthChange": false, 
+      "autoWidth": false,
+      "paging": true,
+      "autoWidth": true,
+      "searching": true,
+      "ordering": true,
+      "pageLength": 6,
+      "order": [[1, 'desc']],
+    });
+  });
+</script>
+<script>
+  $(function () {
+    $("#simpletable2").DataTable({
+      "responsive": true, 
+      "lengthChange": false, 
+      "autoWidth": false,
+      "paging": true,
+      "autoWidth": true,
+      "searching": true,
+      "ordering": true,
+      "pageLength": 6,
+      "order": [[1, 'desc']],
+    });
+  });
+</script>
+<script>
+  $(function () {
+    // var cari = document.getElementById("id_topic").value;
+    var table =$("#fulltable").DataTable({
+      searchHighlight: true,
+      mark: true,
+      "responsive": true, 
+      "lengthChange": false, 
+      "autoWidth": false,
+      "paging": true,
+      "searching": true,
+      "ordering": true,
+      "order": [[1, 'asc']],
+      "pageLength": 15,
+      "buttons": ["csv", "excel", "pdf", "print"],
+      // "search": {
+      //   "search": cari
+      // },
+      "columnDefs": [
+          {
+              'orderable': false,
+              'className': 'select-checkbox',
+              'defaultContent': '',
+              'targets': 0
+          },
+          {
+            'targets': -4,
+            'visible': false
+        },
+      ],
+      "select": {
+          'style': 'os',
+          'selector': 'td:last-child'
+      },
+      }).buttons().container().appendTo('#fulltable_wrapper .col-md-6:eq(0)');
+      table.draw();
+      table.on( 'draw', function () {
+        var body = $( table.table().body() );
+        body.unhighlight();
+        body.highlight( table.search(cari) );
+    });
+  });
+</script>
+<!-- // Mark Highlight -->
+<script>
+  $.extend(true, $.fn.dataTable.defaults, {
+    mark: true
+  });
+</script>
+
+<!-- // Filter dropdown -->
+<script>
+  $("document").ready(function () {
+      //Get a reference to the new datatable
+      var table = $("#fulltable").DataTable();
+      // filter sentiment
+      $("#fulltable_filter.dataTables_filter").append($("#categoryFilter"));
+      var categoryIndex = 0;
+      $("#fulltable th").each(function (i) {
+          if ($($(this)).html() == "Hasil Putusan") {
+              categoryIndex = i;
+              return false;
+          }
+      });
+      $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+          var selectedItem = $("#categoryFilter").val();
+          var category = data[categoryIndex];
+          if (selectedItem === "" || category.includes(selectedItem)) {
+              return true;
+          }
+        });
+      $("#categoryFilter").change(function (e) {
+          table.draw();
+        });
+      $('#fulltable tbody').on('click', 'tr', function () {
+          if ($(this).hasClass('selected')) {
+              $(this).removeClass('selected');
+          }
+          else {
+              table.$('tr.selected').removeClass('selected');
+              $(this).addClass('selected');
+          }
+      });
+    });
+</script>
+
+<!-- Fulltable2 -->
+<script>
+  $(function () {
+    // var cari = document.getElementById("id_topic").value;
+    var table =$("#fulltable2").DataTable({
+      searchHighlight: true,
+      mark: true,
+      "responsive": true, 
+      "lengthChange": false, 
+      "autoWidth": false,
+      "paging": true,
+      "searching": true,
+      "ordering": true,
+      "order": [[1, 'desc']],
+      "pageLength": 15,
+      "buttons": ["csv", "excel", "pdf", "print"],
+      // "search": {
+      //   "search": cari
+      // },
+      "columnDefs": [
+          {
+              'orderable': false,
+              'className': 'select-checkbox',
+              'defaultContent': '',
+              'targets': 0
+          },
+          {
+            'targets': -4,
+            'visible': false
+        },
+      ],
+      "select": {
+          'style': 'os',
+          'selector': 'td:last-child'
+      },
+      }).buttons().container().appendTo('#fulltable2_wrapper .col-md-6:eq(0)');
+      table.draw();
+      table.on( 'draw', function () {
+        var body = $( table.table().body() );
+        body.unhighlight();
+        body.highlight( table.search(cari) );
+    });
+  });
+</script>
+<script>
+  $("document").ready(function () {
+      //Get a reference to the new datatable
+      var table = $("#fulltable2").DataTable();
+      // filter sentiment
+      $("#fulltable2_filter.dataTables_filter").append($("#categoryFilter"));
+      var categoryIndex = 0;
+      $("#fulltable2 th").each(function (i) {
+          if ($($(this)).html() == "Hasil Putusan") {
+              categoryIndex = i;
+              return false;
+          }
+      });
+      $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+          var selectedItem = $("#categoryFilter").val();
+          var category = data[categoryIndex];
+          if (selectedItem === "" || category.includes(selectedItem)) {
+              return true;
+          }
+        });
+      $("#categoryFilter").change(function (e) {
+          table.draw();
+        });
+      $('#fulltable2 tbody').on('click', 'tr', function () {
+          if ($(this).hasClass('selected')) {
+              $(this).removeClass('selected');
+          }
+          else {
+              table.$('tr.selected').removeClass('selected');
+              $(this).addClass('selected');
+          }
+      });
+    });
+</script>

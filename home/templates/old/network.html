@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 col-xl-6 mb-4">
+            <div class="card shadow border-start-primary py-2">
+                <div class="card-body">
+                    <div class="row align-items-center no-gutters">
+                        <div class="col me-2">
+                            <form method="post" novalidate>
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-12 mb-0">
+                                    {{ form.topic|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        {{ form.start|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        {{ form.end|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-4 mt-4">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Sentiment Network</h6>
+                </div>
+                <div class="card-body">
+                    {{net1 |safe }}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Top Retweeted Users</h6>
+                </div>
+                <br>
+                <br>
+                <div class="card-body mr-4 pr-2">
+                    <div>{{ table1|safe }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Negative Worldcloud</h6>
+                </div>
+                <div class="card-body">
+                    <div>{{ wcloud1|safe }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="text-primary fw-bold m-0">Positive Worldcloud</h6>
+                </div>
+                <div class="card-body">
+                    <div>{{ wcloud2|safe }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
